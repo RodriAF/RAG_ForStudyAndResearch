@@ -317,19 +317,6 @@ Pregunta → Embedding → Búsqueda por similitud → Top 5 fragmentos relevant
 - **Un solo usuario** - No hay separación de documentos por usuario (mejora v2.0)
 
 ---
-
-## 🚀 Próximas Mejoras
-
-- [ ] Soporte para múltiples PDFs simultáneos
-- [ ] Exportar conversaciones
-- [ ] Resúmenes automáticos de documentos
-- [ ] Comparación entre documentos
-- [ ] Interfaz con React
-- [ ] Autenticación de usuarios
-- [ ] Docker Compose para deployment
-- [ ] Soporte para más formatos (DOCX, TXT, HTML)
-
----
 ## Mejoras Futuras y Roadmap
 
 ### Corto Plazo (v1.1)
