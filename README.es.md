@@ -322,7 +322,7 @@ Pregunta → Embedding → Búsqueda por similitud → Top 5 fragmentos relevant
 ### Corto Plazo (v1.1)
 
 #### Experiencia de Usuario
-- [ ] **Drag & Drop** para subir PDFs
+- [X] **Drag & Drop** para subir PDFs
 - [ ] **Historial de conversaciones** por documento
 - [ ] **Exportar respuestas** a PDF/TXT/Markdown
 

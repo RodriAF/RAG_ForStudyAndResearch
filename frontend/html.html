@@ -17,6 +17,7 @@
     --border: #e5e7eb;
     --text: #1f2937;
     --text-light: #6b7280;
+    --drag-active: #e8f0ff;
 }
 
 * {
@@ -68,10 +69,17 @@ body {
     text-align: center;
     margin-bottom: 15px;
     transition: 0.2s;
+    cursor: pointer;
 }
 
 .upload-box:hover {
     border-color: var(--primary);
+}
+
+.upload-box.drag-active {
+    border-color: var(--primary);
+    background: var(--drag-active);
+    border-style: solid;
 }
 
 input[type="file"] {
@@ -265,6 +273,13 @@ footer {
     gap: 12px;
     justify-content: flex-end;
 }
+
+/* Estilo para mensajes de error de archivo */
+.file-error {
+    color: var(--danger);
+    font-size: 12px;
+    margin-top: 8px;
+}
 </style>
 </head>
 
@@ -279,9 +294,12 @@ footer {
 
         <div>
             <div class="section-title">Upload Document</div>
-            <div class="upload-box">
+            <div class="upload-box" id="dropZone">
                 <div style="font-weight:500; margin-bottom:10px;">
-                    Select a PDF document
+                    📄 Drag & drop your PDF here
+                </div>
+                <div style="font-size:13px; color:var(--text-light); margin-bottom:15px;">
+                    or
                 </div>
 
                 <input type="file" id="pdfFile" accept=".pdf" hidden>
@@ -296,6 +314,7 @@ footer {
                     style="margin-top:12px; font-size:13px; color:#6b7280;">
                     No file selected
                 </div>
+                <div id="fileErrorDisplay" class="file-error"></div>
             </div>
             <button class="btn btn-primary" onclick="uploadPDF()" id="uploadBtn">
                 Process PDF
@@ -338,19 +357,93 @@ footer {
 const API_URL = 'http://localhost:8000';
 let selectedCollection = null;
 
-// Mostrar nombre del archivo seleccionado
-document.getElementById('pdfFile').addEventListener('change', function(e) {
-    const fileNameDisplay = document.getElementById('fileNameDisplay');
-    const file = e.target.files[0];
+// Elementos del DOM
+const dropZone = document.getElementById('dropZone');
+const fileInput = document.getElementById('pdfFile');
+const fileNameDisplay = document.getElementById('fileNameDisplay');
+const fileErrorDisplay = document.getElementById('fileErrorDisplay');
+
+// Prevenir comportamiento por defecto del drag and drop
+['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+    dropZone.addEventListener(eventName, preventDefaults, false);
+    document.body.addEventListener(eventName, preventDefaults, false);
+});
+
+function preventDefaults(e) {
+    e.preventDefault();
+    e.stopPropagation();
+}
+
+// Efectos visuales durante el drag
+['dragenter', 'dragover'].forEach(eventName => {
+    dropZone.addEventListener(eventName, highlight, false);
+});
+
+['dragleave', 'drop'].forEach(eventName => {
+    dropZone.addEventListener(eventName, unhighlight, false);
+});
+
+function highlight(e) {
+    dropZone.classList.add('drag-active');
+}
+
+function unhighlight(e) {
+    dropZone.classList.remove('drag-active');
+}
+
+// Manejar el drop de archivos
+dropZone.addEventListener('drop', handleDrop, false);
+
+function handleDrop(e) {
+    const dt = e.dataTransfer;
+    const files = dt.files;
     
-    if (file) {
-        fileNameDisplay.textContent = `Selected: ${file.name}`;
-        fileNameDisplay.style.color = '#2563eb';
+    // Validar que sea un solo archivo
+    if (files.length > 1) {
+        showError('Solo puedes subir un archivo a la vez');
+        return;
+    }
+    
+    const file = files[0];
+    
+    // Validar que sea un PDF
+    if (file && file.type === 'application/pdf') {
+        fileInput.files = files; // Asignar el archivo al input
+        updateFileName(file);
+        clearError();
     } else {
-        fileNameDisplay.textContent = 'No file selected';
-        fileNameDisplay.style.color = '#6b7280';
+        showError('Por favor, selecciona un archivo PDF válido');
+    }
+}
+
+// Mostrar nombre del archivo seleccionado (desde input o drag & drop)
+fileInput.addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (file) {
+        updateFileName(file);
+        clearError();
+    } else {
+        resetFileName();
     }
 });
+
+function updateFileName(file) {
+    fileNameDisplay.textContent = `Selected: ${file.name}`;
+    fileNameDisplay.style.color = '#2563eb';
+}
+
+function resetFileName() {
+    fileNameDisplay.textContent = 'No file selected';
+    fileNameDisplay.style.color = '#6b7280';
+}
+
+function showError(message) {
+    fileErrorDisplay.textContent = message;
+}
+
+function clearError() {
+    fileErrorDisplay.textContent = '';
+}
 
 loadCollections();
 // Cargar colecciones cada 30 segundos para mantener actualizada la lista
@@ -414,7 +507,10 @@ function showQueryInterface() {
 
 async function uploadPDF() {
     const file = document.getElementById('pdfFile').files[0];
-    if (!file) return alert("Please select a PDF");
+    if (!file) {
+        showError("Please select a PDF");
+        return;
+    }
 
     const btn = document.getElementById('uploadBtn');
     const originalText = btn.innerHTML;
@@ -438,15 +534,15 @@ async function uploadPDF() {
             selectCollection(data.collection_name);
             
             // Limpiar el input file después de una subida exitosa
-            document.getElementById('pdfFile').value = '';
-            document.getElementById('fileNameDisplay').textContent = 'No file selected';
-            document.getElementById('fileNameDisplay').style.color = '#6b7280';
+            fileInput.value = '';
+            resetFileName();
+            clearError();
             
         } else {
-            alert(data.detail || 'Error uploading file');
+            showError(data.detail || 'Error uploading file');
         }
     } catch (e) {
-        alert('Error: ' + e.message);
+        showError('Error: ' + e.message);
     }
 
     btn.innerHTML = originalText;

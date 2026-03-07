@@ -355,7 +355,7 @@ Question → Embedding → Similarity Search → Top 5 relevant chunks
 ### Short Term (v1.1)
 
 #### User Experience
-- [ ] **Drag & Drop** for PDF uploads
+- [X] **Drag & Drop** for PDF uploads
 - [ ] **Conversation history** per document
 - [ ] **Export answers** to PDF/TXT/Markdown
 
