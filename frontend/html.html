@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RAG System | Document Query</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+:root {
+    --primary: #2563eb;
+    --primary-hover: #1e4fd8;
+    --danger: #dc2626;
+    --bg: #f5f7fb;
+    --card-bg: #ffffff;
+    --border: #e5e7eb;
+    --text: #1f2937;
+    --text-light: #6b7280;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+}
+
+.container {
+    display: flex;
+    min-height: 100vh;
+}
+
+/* Sidebar */
+
+.sidebar {
+    width: 320px;
+    background: var(--card-bg);
+    border-right: 1px solid var(--border);
+    padding: 30px 20px;
+    display: flex;
+    flex-direction: column;
+}
+
+.logo {
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 40px;
+}
+
+.section-title {
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: var(--text-light);
+    margin-bottom: 12px;
+}
+
+.upload-box {
+    border: 2px dashed var(--border);
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    margin-bottom: 15px;
+    transition: 0.2s;
+}
+
+.upload-box:hover {
+    border-color: var(--primary);
+}
+
+input[type="file"] {
+    width: 100%;
+    margin-top: 10px;
+}
+
+.btn {
+    width: 100%;
+    padding: 12px;
+    border-radius: 8px;
+    border: none;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.btn-primary {
+    background: var(--primary);
+    color: white;
+}
+
+.btn-primary:hover {
+    background: var(--primary-hover);
+}
+
+.btn-danger {
+    background: var(--danger);
+    color: white;
+}
+
+.btn-danger:hover {
+    background: #b91c1c;
+}
+
+.collection-item {
+    padding: 10px 12px;
+    border-radius: 8px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 14px;
+    transition: 0.2s;
+}
+
+.collection-item:hover {
+    background: #f3f4f6;
+}
+
+.collection-item.active {
+    background: #e8f0ff;
+    color: var(--primary);
+    font-weight: 600;
+}
+
+/* Main content */
+
+.main {
+    flex: 1;
+    padding: 50px 60px;
+}
+
+.header {
+    margin-bottom: 40px;
+}
+
+.header h1 {
+    font-size: 28px;
+    font-weight: 700;
+}
+
+.subtitle {
+    color: var(--text-light);
+    margin-top: 5px;
+}
+
+.card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 30px;
+}
+
+textarea {
+    width: 100%;
+    padding: 14px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    font-family: inherit;
+    resize: vertical;
+    font-size: 15px;
+}
+
+textarea:focus {
+    outline: none;
+    border-color: var(--primary);
+}
+
+.settings {
+    margin: 20px 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+input[type="number"] {
+    width: 70px;
+    padding: 6px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+}
+
+.answer-box {
+    margin-top: 30px;
+    padding: 25px;
+    border-radius: 10px;
+    background: #f9fafb;
+    border: 1px solid var(--border);
+    line-height: 1.7;
+}
+
+.source-item {
+    margin-top: 15px;
+    padding: 15px;
+    border-left: 3px solid var(--primary);
+    background: #f9fafb;
+    font-size: 14px;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 80px 20px;
+    color: var(--text-light);
+}
+
+.loading-spinner {
+    width: 18px;
+    height: 18px;
+    border: 3px solid #d1d5db;
+    border-top: 3px solid var(--primary);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    display: inline-block;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+footer {
+    margin-top: 60px;
+    font-size: 13px;
+    color: var(--text-light);
+}
+
+/* Estilos para el mensaje de confirmación de eliminación */
+.delete-confirm {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.confirm-dialog {
+    background: white;
+    padding: 24px;
+    border-radius: 12px;
+    max-width: 400px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.confirm-dialog h3 {
+    margin-bottom: 12px;
+}
+
+.confirm-dialog p {
+    margin-bottom: 20px;
+    color: var(--text-light);
+}
+
+.confirm-dialog .buttons {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+
+        <div class="logo">📄 RAG Console</div>
+
+        <div>
+            <div class="section-title">Upload Document</div>
+            <div class="upload-box">
+                <div style="font-weight:500; margin-bottom:10px;">
+                    Select a PDF document
+                </div>
+
+                <input type="file" id="pdfFile" accept=".pdf" hidden>
+
+                <button type="button" class="btn btn-primary" 
+                        style="width:auto; padding:8px 16px; font-size:14px;"
+                        onclick="document.getElementById('pdfFile').click()">
+                    Choose File
+                </button>
+
+                <div id="fileNameDisplay" 
+                    style="margin-top:12px; font-size:13px; color:#6b7280;">
+                    No file selected
+                </div>
+            </div>
+            <button class="btn btn-primary" onclick="uploadPDF()" id="uploadBtn">
+                Process PDF
+            </button>
+            <div id="uploadStatus" style="margin-top:10px;"></div>
+        </div>
+
+        <div style="margin-top:40px;">
+            <div class="section-title">Documents</div>
+            <div id="collectionsList"></div>
+        </div>
+
+    </aside>
+
+    <!-- MAIN -->
+    <main class="main">
+
+        <div class="header">
+            <h1>Intelligent Document Query</h1>
+            <div class="subtitle">
+                RAG system with semantic search and local generation
+            </div>
+        </div>
+
+        <div class="card">
+            <div id="mainContent" class="empty-state">
+                Select a document to begin
+            </div>
+        </div>
+
+        <footer>
+            FastAPI • Ollama • ChromaDB • Sentence Transformers
+        </footer>
+
+    </main>
+
+</div>
+
+<script>
+const API_URL = 'http://localhost:8000';
+let selectedCollection = null;
+
+// Mostrar nombre del archivo seleccionado
+document.getElementById('pdfFile').addEventListener('change', function(e) {
+    const fileNameDisplay = document.getElementById('fileNameDisplay');
+    const file = e.target.files[0];
+    
+    if (file) {
+        fileNameDisplay.textContent = `Selected: ${file.name}`;
+        fileNameDisplay.style.color = '#2563eb';
+    } else {
+        fileNameDisplay.textContent = 'No file selected';
+        fileNameDisplay.style.color = '#6b7280';
+    }
+});
+
+loadCollections();
+// Cargar colecciones cada 30 segundos para mantener actualizada la lista
+setInterval(loadCollections, 30000);
+
+async function loadCollections() {
+    try {
+        const res = await fetch(`${API_URL}/collections`);
+        const data = await res.json();
+        const container = document.getElementById('collectionsList');
+
+        if (!data.collections.length) {
+            container.innerHTML = '<div style="font-size:13px;color:#6b7280;">No documents available</div>';
+            return;
+        }
+
+        container.innerHTML = data.collections.map(col => `
+            <div class="collection-item ${selectedCollection === col ? 'active' : ''}" 
+                 onclick="selectCollection('${col}')">
+                <span style="overflow: hidden; text-overflow: ellipsis; max-width: 180px;">${col}</span>
+                <button class="btn-danger" style="padding:4px 8px;font-size:12px; width: auto;"
+                        onclick="event.stopPropagation(); confirmDelete('${col}')">
+                    ✕
+                </button>
+            </div>
+        `).join('');
+    } catch (e) {
+        console.error('Error loading collections:', e);
+        document.getElementById('collectionsList').innerHTML = 
+            '<div style="font-size:13px;color:#dc2626;">Error connecting to server</div>';
+    }
+}
+
+function selectCollection(name) {
+    selectedCollection = name;
+    loadCollections(); // Actualizar la lista para mostrar el item activo
+    showQueryInterface();
+}
+
+function showQueryInterface() {
+    document.getElementById('mainContent').innerHTML = `
+        <div style="margin-bottom:20px;font-weight:600;">
+            Selected document: ${selectedCollection}
+        </div>
+
+        <textarea id="questionInput" rows="4"
+        placeholder="Ask a question about the document..."></textarea>
+
+        <div class="settings">
+            Number of chunks:
+            <input type="number" id="nResults" value="5" min="1" max="10">
+        </div>
+
+        <button class="btn btn-primary" onclick="askQuestion()" id="queryBtn">
+            Get Answer
+        </button>
+
+        <div id="answerSection"></div>
+    `;
+}
+
+async function uploadPDF() {
+    const file = document.getElementById('pdfFile').files[0];
+    if (!file) return alert("Please select a PDF");
+
+    const btn = document.getElementById('uploadBtn');
+    const originalText = btn.innerHTML;
+    btn.innerHTML = '<span class="loading-spinner"></span>';
+    btn.disabled = true;
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+        const res = await fetch(`${API_URL}/upload`, { 
+            method: 'POST', 
+            body: formData 
+        });
+        
+        const data = await res.json();
+
+        if (res.ok) {
+            selectedCollection = data.collection_name;
+            await loadCollections();
+            selectCollection(data.collection_name);
+            
+            // Limpiar el input file después de una subida exitosa
+            document.getElementById('pdfFile').value = '';
+            document.getElementById('fileNameDisplay').textContent = 'No file selected';
+            document.getElementById('fileNameDisplay').style.color = '#6b7280';
+            
+        } else {
+            alert(data.detail || 'Error uploading file');
+        }
+    } catch (e) {
+        alert('Error: ' + e.message);
+    }
+
+    btn.innerHTML = originalText;
+    btn.disabled = false;
+}
+
+async function askQuestion() {
+    const question = document.getElementById('questionInput').value.trim();
+    if (!question) return alert("Please enter a question");
+
+    const btn = document.getElementById('queryBtn');
+    const answerSection = document.getElementById('answerSection');
+    const originalText = btn.innerHTML;
+
+    btn.innerHTML = '<span class="loading-spinner"></span>';
+    btn.disabled = true;
+    answerSection.innerHTML = '';
+
+    try {
+        const res = await fetch(`${API_URL}/query`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                question,
+                collection_name: selectedCollection,
+                n_results: parseInt(document.getElementById('nResults').value)
+            })
+        });
+
+        const data = await res.json();
+
+        if (res.ok) {
+            answerSection.innerHTML = `
+                <div class="answer-box">
+                    ${data.answer}
+                </div>
+                <div style="margin-top:20px; font-weight:600;">Sources:</div>
+                ${data.sources.map((s,i)=>`
+                    <div class="source-item">
+                        <strong>Chunk ${i+1}</strong><br>
+                        ${s.substring(0,400)}...
+                    </div>
+                `).join('')}
+            `;
+        } else {
+            answerSection.innerHTML = `<div style="color:red;">Error: ${data.detail || 'Unknown error'}</div>`;
+        }
+
+    } catch (e) {
+        answerSection.innerHTML = `<div style="color:red;">Error: ${e.message}</div>`;
+    }
+
+    btn.innerHTML = originalText;
+    btn.disabled = false;
+}
+
+// Función para confirmar eliminación
+function confirmDelete(collectionName) {
+    // Crear dialog de confirmación
+    const dialog = document.createElement('div');
+    dialog.className = 'delete-confirm';
+    dialog.innerHTML = `
+        <div class="confirm-dialog">
+            <h3>Delete Document</h3>
+            <p>Are you sure you want to delete "${collectionName}"? This action cannot be undone.</p>
+            <div class="buttons">
+                <button class="btn" onclick="this.closest('.delete-confirm').remove()">Cancel</button>
+                <button class="btn btn-danger" onclick="deleteCollection('${collectionName}')">Delete</button>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(dialog);
+}
+
+// Función para eliminar colección
+async function deleteCollection(name) {
+    // Cerrar el dialog
+    const dialog = document.querySelector('.delete-confirm');
+    if (dialog) dialog.remove();
+    
+    try {
+        const res = await fetch(`${API_URL}/collection/${encodeURIComponent(name)}`, { 
+            method: 'DELETE' 
+        });
+        
+        if (res.ok) {
+            // Si la colección eliminada era la seleccionada, limpiar la interfaz
+            if (selectedCollection === name) {
+                selectedCollection = null;
+                document.getElementById('mainContent').innerHTML = `
+                    <div class="empty-state">
+                        Select a document to begin
+                    </div>
+                `;
+            }
+            // Recargar la lista de colecciones
+            await loadCollections();
+        } else {
+            const data = await res.json();
+            alert(data.detail || 'Error deleting collection');
+        }
+    } catch (e) {
+        alert('Error: ' + e.message);
+    }
+}
+</script>
+
+</body>
+</html>
