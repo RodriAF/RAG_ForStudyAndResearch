@@ -237,7 +237,7 @@ footer {
     color: var(--text-light);
 }
 
-/* Estilos para el mensaje de confirmación de eliminación */
+/* Styles for the delete confirmation message */
 .delete-confirm {
     position: fixed;
     top: 0;
@@ -274,7 +274,7 @@ footer {
     justify-content: flex-end;
 }
 
-/* Estilo para mensajes de error de archivo */
+/* Style for file error messages */
 .file-error {
     color: var(--danger);
     font-size: 12px;
@@ -287,7 +287,6 @@ footer {
 
 <div class="container">
 
-    <!-- SIDEBAR -->
     <aside class="sidebar">
 
         <div class="logo">📄 RAG Console</div>
@@ -311,7 +310,7 @@ footer {
                 </button>
 
                 <div id="fileNameDisplay" 
-                    style="margin-top:12px; font-size:13px; color:#6b7280;">
+                     style="margin-top:12px; font-size:13px; color:#6b7280;">
                     No file selected
                 </div>
                 <div id="fileErrorDisplay" class="file-error"></div>
@@ -329,7 +328,6 @@ footer {
 
     </aside>
 
-    <!-- MAIN -->
     <main class="main">
 
         <div class="header">
@@ -357,13 +355,13 @@ footer {
 const API_URL = 'http://localhost:8000';
 let selectedCollection = null;
 
-// Elementos del DOM
+// DOM elements
 const dropZone = document.getElementById('dropZone');
 const fileInput = document.getElementById('pdfFile');
 const fileNameDisplay = document.getElementById('fileNameDisplay');
 const fileErrorDisplay = document.getElementById('fileErrorDisplay');
 
-// Prevenir comportamiento por defecto del drag and drop
+// Prevent default drag and drop behavior
 ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
     dropZone.addEventListener(eventName, preventDefaults, false);
     document.body.addEventListener(eventName, preventDefaults, false);
@@ -374,7 +372,7 @@ function preventDefaults(e) {
     e.stopPropagation();
 }
 
-// Efectos visuales durante el drag
+// Visual effects during drag
 ['dragenter', 'dragover'].forEach(eventName => {
     dropZone.addEventListener(eventName, highlight, false);
 });
@@ -391,32 +389,32 @@ function unhighlight(e) {
     dropZone.classList.remove('drag-active');
 }
 
-// Manejar el drop de archivos
+// Handle file drop
 dropZone.addEventListener('drop', handleDrop, false);
 
 function handleDrop(e) {
     const dt = e.dataTransfer;
     const files = dt.files;
     
-    // Validar que sea un solo archivo
+    // Validate that only one file is uploaded at a time
     if (files.length > 1) {
-        showError('Solo puedes subir un archivo a la vez');
+        showError('You can only upload one file at a time');
         return;
     }
     
     const file = files[0];
     
-    // Validar que sea un PDF
+    // Validate that it is a PDF
     if (file && file.type === 'application/pdf') {
-        fileInput.files = files; // Asignar el archivo al input
+        fileInput.files = files; // Assign the file to the input
         updateFileName(file);
         clearError();
     } else {
-        showError('Por favor, selecciona un archivo PDF válido');
+        showError('Please select a valid PDF file');
     }
 }
 
-// Mostrar nombre del archivo seleccionado (desde input o drag & drop)
+// Show selected file name (from input or drag & drop)
 fileInput.addEventListener('change', function(e) {
     const file = e.target.files[0];
     if (file) {
@@ -446,7 +444,7 @@ function clearError() {
 }
 
 loadCollections();
-// Cargar colecciones cada 30 segundos para mantener actualizada la lista
+// Load collections every 30 seconds to keep the list updated
 setInterval(loadCollections, 30000);
 
 async function loadCollections() {
@@ -481,7 +479,7 @@ async function loadCollections() {
 
 function selectCollection(name) {
     selectedCollection = name;
-    loadCollections(); // Actualizar la lista para mostrar el item activo
+    loadCollections(); // Update the list to show the active item
     showQueryInterface();
 }
 
@@ -535,7 +533,7 @@ async function uploadPDF() {
             await loadCollections();
             selectCollection(data.collection_name);
             
-            // Limpiar el input file después de una subida exitosa
+            // Clear the file input after a successful upload
             fileInput.value = '';
             resetFileName();
             clearError();
@@ -601,9 +599,9 @@ async function askQuestion() {
     btn.disabled = false;
 }
 
-// Función para confirmar eliminación
+// Function to confirm deletion
 function confirmDelete(collectionName) {
-    // Crear dialog de confirmación
+    // Create confirmation dialog
     const dialog = document.createElement('div');
     dialog.className = 'delete-confirm';
     dialog.innerHTML = `
@@ -619,9 +617,9 @@ function confirmDelete(collectionName) {
     document.body.appendChild(dialog);
 }
 
-// Función para eliminar colección
+// Function to delete collection
 async function deleteCollection(name) {
-    // Cerrar el dialog
+    // Close the dialog
     const dialog = document.querySelector('.delete-confirm');
     if (dialog) dialog.remove();
     
@@ -631,7 +629,7 @@ async function deleteCollection(name) {
         });
         
         if (res.ok) {
-            // Si la colección eliminada era la seleccionada, limpiar la interfaz
+            // If the deleted collection was the selected one, clear the interface
             if (selectedCollection === name) {
                 selectedCollection = null;
                 document.getElementById('mainContent').innerHTML = `
@@ -640,7 +638,7 @@ async function deleteCollection(name) {
                     </div>
                 `;
             }
-            // Recargar la lista de colecciones
+            // Reload the collection list
             await loadCollections();
         } else {
             const data = await res.json();
