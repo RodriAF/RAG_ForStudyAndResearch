@@ -461,11 +461,13 @@ async function loadCollections() {
         }
 
         container.innerHTML = data.collections.map(col => `
-            <div class="collection-item ${selectedCollection === col ? 'active' : ''}" 
-                 onclick="selectCollection('${col}')">
-                <span style="overflow: hidden; text-overflow: ellipsis; max-width: 180px;">${col}</span>
+            <div class="collection-item ${selectedCollection === col.name ? 'active' : ''}" 
+                 onclick="selectCollection('${col.name}')">
+                <span style="overflow: hidden; text-overflow: ellipsis; max-width: 180px;">
+                    ${col.filename || col.name}
+                </span>
                 <button class="btn-danger" style="padding:4px 8px;font-size:12px; width: auto;"
-                        onclick="event.stopPropagation(); confirmDelete('${col}')">
+                        onclick="event.stopPropagation(); confirmDelete('${col.name}')">
                     ✕
                 </button>
             </div>

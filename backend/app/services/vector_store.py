@@ -2,6 +2,7 @@ import chromadb
 from chromadb.config import Settings
 from typing import List, Dict
 import uuid
+import os
 
 class VectorStore:
     """
@@ -9,11 +10,14 @@ class VectorStore:
     including collection management, document storage, and similarity search.
     """
     def __init__(self, persist_directory: str = "./data/chroma_db"):
-        self.client = chromadb.Client(Settings(
-            persist_directory=persist_directory,
-            anonymized_telemetry=False
-        ))
-    
+        # Asegurar que el directorio existe
+        os.makedirs(persist_directory, exist_ok=True)
+        
+        # Configuración CORRECTA para persistencia
+        self.client = chromadb.PersistentClient(
+            path=persist_directory
+        )
+
     def create_collection(self, name: str):
         """Creates or retrieves an existing collection"""
         return self.client.get_or_create_collection(name=name)
@@ -41,14 +45,17 @@ class VectorStore:
     def search(self, collection_name: str, query_embedding: List[float], 
                n_results: int = 5):
         """Searches for the most similar chunks based on vector similarity"""
-        collection = self.client.get_collection(name=collection_name)
-        
-        results = collection.query(
-            query_embeddings=[query_embedding],
-            n_results=n_results
-        )
-        
-        return results
+        try:
+            collection = self.client.get_collection(name=collection_name)
+            
+            results = collection.query(
+                query_embeddings=[query_embedding],
+                n_results=n_results
+            )
+            
+            return results
+        except ValueError:
+            return {'documents': [[]], 'metadatas': [[]], 'distances': [[]]}
     
     def delete_collection(self, collection_name: str):
         """Deletes a collection from the database"""
@@ -57,3 +64,7 @@ class VectorStore:
             return True
         except:
             return False
+    
+    def list_collections(self):
+        """Lists all collections"""
+        return self.client.list_collections()
