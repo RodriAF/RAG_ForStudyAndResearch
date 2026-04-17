@@ -4,9 +4,10 @@
 
 A Q&A system for PDF documents using Retrieval Augmented Generation (RAG) with AI models running entirely locally. Designed for students, researchers, and professionals who need to analyze documents privately and securely.
 
-![Stack](https://img.shields.io/badge/FastAPI-005571?style=for-the-badge&logo=fastapi)
-![Python](https://img.shields.io/badge/Python-3.11+-3776AB?style=for-the-badge&logo=python)
+![Python](https://img.shields.io/badge/Python-3.11+-3776AB?style=for-the-badge&logo=python&logoColor=white)
+![FastAPI](https://img.shields.io/badge/FastAPI-005571?style=for-the-badge&logo=fastapi&logoColor=white)
 ![Ollama](https://img.shields.io/badge/Ollama-000000?style=for-the-badge&logo=ollama)
+![MIT License](https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge)
 
 ---
 
@@ -394,3 +395,6 @@ Question → Embedding → Similarity Search → Top 5 relevant chunks
 - [ ] **Docker deployment**
 
 ---
+
+## License
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
